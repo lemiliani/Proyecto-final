@@ -1,0 +1,137 @@
+################################
+### RUN CONTROL
+################################
+:start run control:
+	ncase = 5e6
+:stop run control:
+
+################################
+### GEOMETRY
+################################
+:start geometry definition:
+    :start geometry:
+        library = egs_cones
+        type = EGS_ConeStack
+        name = chamber
+        axis = 0 0 0 0 0 1
+	#air
+        :start layer:
+            thickness = 15.9 # 16-X
+            top radii = 5
+            bottom radii = 5
+            media = air
+        :stop layer:
+
+	#plomo
+        :start layer:
+            thickness = 0.1 # X grosor de la barrera
+            top radii = 5
+            bottom radii = 5
+            media = plomo
+        :stop layer:
+
+	#air
+        :start layer:
+            thickness = 4
+            top radii = 5
+            bottom radii = 5
+            media = air
+        :stop layer:
+
+	#air(chamber) air
+        :start layer:
+            thickness = 0.25
+            top radii = 0.5 5
+            bottom radii = 0.5 5
+            media = air air
+        :stop layer:
+
+	#air
+        :start layer:
+            thickness = 3.75
+            top radii = 5
+            bottom radii = 5
+            media = air
+        :stop layer:
+    :stop geometry:
+
+    simulation geometry = chamber
+
+:stop geometry definition:
+
+################################
+### SOURCE
+################################
+:start source definition: # Only 1 source definition block allowed
+	### Pencil beam
+	:start source:
+		name = pencil_beam
+		library = egs_parallel_beam
+		charge = 0
+		direction = 0 0 1
+		:start spectrum:
+			type = monoenergetic
+			energy = 0.364 # in MeV
+			#0.511 Mev for F
+			#0.364 Mev for I
+		:stop spectrum:
+		:start shape:
+			type = point
+			position = 0 0 0 # in cm
+		:stop shape:
+	:stop source:
+
+    simulation source = pencil_beam
+
+:stop source definition:
+
+################################
+### MEDIA DEFINITION
+################################
+:start media definition:
+	### Cutoff energies, in MeV
+	ae = 0.521 # lowest energy for electrons (kinetic+0.511)
+	ap = 0.01 # lowest energy for photons (kinetic)
+	ue = 50.511 # maximum energy for electrons (kinetic+0.511)
+	up = 50 # maximum energy for photons (kinetic)
+
+	### air
+	:start air:
+		density correction file = air_dry_nearsealevel
+	:stop air:
+
+	### plomo
+	:start plomo: 
+		density correction file = lead 
+	:stop plomo:
+
+:stop media definition:
+
+################################
+### SCORING OPTIONS
+################################
+:start scoring options:
+
+    calculation type = dose
+
+    :start calculation geometry:
+        geometry name = chamber
+        cavity regions = 6
+        cavity mass = 0.000236559957 # in g
+	cavity geometry = chamber
+    :stop calculation geometry:
+
+:stop scoring options:
+
+################################
+### AUSGAB
+################################
+:start ausgab object definition:
+	:start ausgab object:
+	library = egs_dose_scoring
+	volume = 0.196349541 # in cm^3
+	dose regions = 6
+	region dose = yes
+	name = my_dose_scoring
+:stop ausgab object:
+:stop ausgab object definition:
